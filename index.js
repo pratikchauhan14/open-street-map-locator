@@ -83,14 +83,59 @@ class MapManager {
         this._applyFilters();
     }
 
-    _addMarkers() { /* ... (code is unchanged) ... */
+    // _addMarkers() { /* ... (code is unchanged) ... */
+    //     this.locations.forEach(location => {
+    //         const marker = L.marker([location.latitude, location.longitude]);
+    //         marker.bindPopup(this.options.infoboxTemplate(location));
+    //         marker.on('popupclose', () => {
+    //             if (location.listingElement) location.listingElement.classList.remove('active');
+    //         });
+    //         location.marker = marker;
+    //     });
+    // }
+    _addMarkers() {
         this.locations.forEach(location => {
             const marker = L.marker([location.latitude, location.longitude]);
             marker.bindPopup(this.options.infoboxTemplate(location));
+
+            // NEW: Listen for when a popup opens (marker is clicked)
+            marker.on('popupopen', () => {
+                this._setActiveListItem(location);
+            });
+
             marker.on('popupclose', () => {
-                if (location.listingElement) location.listingElement.classList.remove('active');
+                if (location.listingElement) {
+                    location.listingElement.classList.remove('active');
+                }
             });
             location.marker = marker;
+        });
+    }
+
+    /**
+     * NEW HELPER METHOD
+     * Handles highlighting and scrolling to the active list item.
+     * @param {object} location - The location object to activate.
+     */
+    _setActiveListItem(location) {
+        // Ensure the listing element for this location exists in the DOM
+        if (!location.listingElement || !document.body.contains(location.listingElement)) {
+            return;
+        }
+
+        // Find and remove the .active class from any other item
+        const currentActive = this.listingElement.querySelector('.active');
+        if (currentActive) {
+            currentActive.classList.remove('active');
+        }
+
+        // Add the .active class to the correct item
+        location.listingElement.classList.add('active');
+
+        // Scroll the item into view
+        location.listingElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
         });
     }
 
@@ -149,10 +194,36 @@ class MapManager {
         return true;
     }
 
-    _populateListing(visibleLocations) {
-        // --- DEBUG LOG ---
-        if (this.debug) console.log(`[MapManager] 5. Populating listing with ${visibleLocations.length} items.`);
+    // _populateListing(visibleLocations) {
+    //     // --- DEBUG LOG ---
+    //     if (this.debug) console.log(`[MapManager] 5. Populating listing with ${visibleLocations.length} items.`);
     
+    //     this.listingElement.innerHTML = '';
+    //     if (visibleLocations.length === 0) {
+    //         this.listingElement.innerHTML = '<div class="no-results p-4 text-sm text-gray-500">No matching locations found.</div>';
+    //         return;
+    //     }
+    
+    //     visibleLocations.forEach(location => {
+    //         const itemElementWrapper = document.createElement('div');
+    //         itemElementWrapper.innerHTML = this.options.listingTemplate(location);
+            
+    //         // --- THIS IS THE FIX ---
+    //         const itemElement = itemElementWrapper.firstElementChild; 
+            
+    
+    //         location.listingElement = itemElement;
+    //         itemElement.addEventListener('click', () => {
+    //             const currentActive = this.listingElement.querySelector('.active');
+    //             if (currentActive) currentActive.classList.remove('active');
+    //             itemElement.classList.add('active');
+    //             this.map.setView([location.latitude, location.longitude], 12);
+    //             location.marker.openPopup();
+    //         });
+    //         this.listingElement.appendChild(itemElement);
+    //     });
+    // }
+    _populateListing(visibleLocations) {
         this.listingElement.innerHTML = '';
         if (visibleLocations.length === 0) {
             this.listingElement.innerHTML = '<div class="no-results p-4 text-sm text-gray-500">No matching locations found.</div>';
@@ -162,16 +233,12 @@ class MapManager {
         visibleLocations.forEach(location => {
             const itemElementWrapper = document.createElement('div');
             itemElementWrapper.innerHTML = this.options.listingTemplate(location);
-            
-            // --- THIS IS THE FIX ---
             const itemElement = itemElementWrapper.firstElementChild; 
-            
     
             location.listingElement = itemElement;
             itemElement.addEventListener('click', () => {
-                const currentActive = this.listingElement.querySelector('.active');
-                if (currentActive) currentActive.classList.remove('active');
-                itemElement.classList.add('active');
+                // SIMPLIFIED: Just move the map and open the popup.
+                // The 'popupopen' event will now handle the active state.
                 this.map.setView([location.latitude, location.longitude], 12);
                 location.marker.openPopup();
             });
