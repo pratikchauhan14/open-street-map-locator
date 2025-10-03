@@ -16,8 +16,24 @@
             @apply bg-blue-100 dark:bg-blue-950 dark:text-blue-200;
             border-left: 4px solid #4f46e5; /* A solid colored left border */
         }
-        .leaflet-popup-content {  line-height: 1.3; font-size: 13px; font-size: 1.08333em; min-height: 1px; }
-        .leaflet-popup-content-wrapper { @apply rounded-lg overflow-hidden text-left ; }
+        
+        .gm-style-iw.gm-style-iw-c { @apply rounded-lg overflow-hidden text-left p-0; 
+            max-width: 300px !important;
+        }
+        body .gm-style-iw.gm-style-iw-c .gm-style-iw-d{ 
+            padding: 0 !important;
+    width: 100% !important;
+    min-width: 100%;
+    max-width: 100% !important;
+    overflow: auto !important;
+        }
+        .gm-style-iw-chr {
+    position: absolute;
+    right: 0;
+    color: #fff;
+    background-color: #fff;
+    border-radius: 0 0 0 50%;
+}
 
         .map-section{ @apply flex flex-col md:flex-row; }
         .sidebar{
@@ -41,18 +57,6 @@
             @apply text-xs font-bold text-gray-600 dark:text-gray-300 whitespace-nowrap;
         }
 
-        a.leaflet-popup-close-button {
-    background: #fff !important;
-    height: 48px !important;
-    width: 48px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0 0 0 50%;
-}
-
-a.leaflet-popup-close-button span {font-size: 23px;}
-
         /* media query md */
         @media screen and (min-width: 768px) {
             .filter-group-wrapper{
@@ -62,15 +66,21 @@ a.leaflet-popup-close-button span {font-size: 23px;}
 
 
     </style>
+    <style>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="data.js"></script>
-    <script src="index.js"></script>
+    </style>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="data.js"></script>
+<script src="GoogleMapManager.js"></script>
+
 
 </head>
 
 <body>
+    
     <div
         class="px-2 py-2 md:p-4 border-b border-gray-200 dark:border-gray-700 dark:bg-gray-950 dark:text-white flex items-center justify-between bg-white">
         <div class="flex items-center gap-4">
@@ -97,13 +107,15 @@ a.leaflet-popup-close-button span {font-size: 23px;}
     </div>
 
 
-    <div class="filter-group-wrapper">
+    <div
+        class="filter-group-wrapper">
 
         <!-- country wise filter -->
         <div class="single-filter">
             <label for="countryFilter" class="text-xs font-bold text-gray-600 dark:text-gray-300">Filter by
                 Country:</label>
-            <select id="countryFilter" data-filter="country">
+            <select id="countryFilter"
+                data-filter="country">
                 <option value="all">All</option>
                 <option value="India">India</option>
                 <option value="United States">United States</option>
@@ -128,7 +140,8 @@ a.leaflet-popup-close-button span {font-size: 23px;}
         <!-- Label wise filter -->
         <div class="single-filter">
             <label for="labelFilter" class="text-xs font-bold text-gray-600 dark:text-gray-300">Filter by Label:</label>
-            <select id="labelFilter" data-filter="label">
+            <select id="labelFilter"
+                data-filter="label">
                 <option value="all">All</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -140,7 +153,8 @@ a.leaflet-popup-close-button span {font-size: 23px;}
         <div class="single-filter">
             <label for="labelColorFilter" class="text-xs font-bold text-gray-600 dark:text-gray-300">Filter by Label
                 Color:</label>
-            <select id="labelColorFilter" data-filter="label_color">
+            <select id="labelColorFilter"
+                data-filter="label_color">
                 <option value="all">All</option>
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
@@ -152,7 +166,9 @@ a.leaflet-popup-close-button span {font-size: 23px;}
         <div class="single-filter">
             <label for="isActiveFilter" class="text-xs font-bold text-gray-600 dark:text-gray-300">Filter by Is
                 Active:</label>
-            <input type="checkbox" id="isActiveFilter" class="" data-filter="is_active">
+            <input type="checkbox" id="isActiveFilter"
+                class=""
+                data-filter="is_active">
         </div>
 
         <!-- reset of the filters -->
@@ -176,10 +192,11 @@ a.leaflet-popup-close-button span {font-size: 23px;}
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // This function will be called by the Google Maps API script when it's ready
+function initMap() {
 
-            // --- 1. Define your filter configurations ---
-            const filterConfig = [
+// --- All your previous config stays the same! ---
+const filterConfig = [
                 { id: 'countryFilter', key: 'country', type: 'select' },
                 { name: 'typeFilter', key: 'type', type: 'radio' },
                 { id: 'labelFilter', key: 'label', type: 'select' },
@@ -187,26 +204,23 @@ a.leaflet-popup-close-button span {font-size: 23px;}
                 { id: 'isActiveFilter', key: 'is_active', type: 'checkbox' }
             ];
 
-            // --- 2. Define a custom template for the sidebar listing ---
-            const customListingTemplate = (location) => {
-                // Determine status color and text for the "is_active" property
-                const statusColor = location.is_active ? 'bg-green-500' : 'bg-gray-400';
-                const statusText = location.is_active ? 'Active' : 'Inactive';
-
-                return `
-        <div class="listing-item flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-950">
+const customListingTemplate = (location) => {
+    const statusColor = location.is_active ? 'bg-green-500' : 'bg-gray-400';
+    const statusText = location.is_active ? 'Active' : 'Inactive';
+    return `
+       <div class="listing-item flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-950">
             
             <div class="flex-grow">
                 <div class="flex items-center gap-2">
                     <div class="flex-shrink-0" title="${statusText}">
                         <div class="w-3 h-3 rounded-full ${statusColor}"></div>
                     </div>
-                    <h4 class="font-bold text-base text-gray-900 dark:text-white">${location.name}</h4>
+                    <h4 class="font-bold text-base text-gray-900 dark:text-white font-sans">${location.name}</h4>
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">${location.content}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300 font-sans font-normal">${location.content}</p>
                 <div class="mt-2 flex items-center gap-2">
-                    <p class="px-2 py-0.5 text-xs font-semibold text-black rounded-full border border-gray-300 bg-gray-100">${location.country}</p>
-                    <span class="px-2 py-0.5 text-xs font-semibold text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-200 capitalize">
+                    <p class="px-2 py-0.5 text-xs font-semibold text-black rounded-full border border-gray-300 bg-gray-100 font-sans">${location.country}</p>
+                    <span class="px-2 py-0.5 text-xs font-semibold text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-200 capitalize font-sans">
                         ${location.type}
                     </span>
                     <span class="px-2 py-0.5 text-xs font-semibold text-white rounded-full" style="background-color: ${location.label_color};">
@@ -216,17 +230,16 @@ a.leaflet-popup-close-button span {font-size: 23px;}
             </div>
         </div>
     `;
-            };
+};
 
-            // --- NEW: Define a custom template for the map popup (infobox) ---
-            const customInfoboxTemplate = (location) => {
+const customInfoboxTemplate = (location) => {
                 const activeStatus = location.is_active ? 'Active' : 'Inactive';
                 const statusColor = location.is_active ? 'bg-green-500' : 'bg-gray-400';
                 const statusText = location.is_active ? 'Active' : 'Inactive';
                 return `
         <div class="custom-infobox">
             <div class="w-full ">
-                <img src="${location.imageUrl}" alt="${location.name}" class="w-full object-cover">
+                <img src="${location.imageUrl}" alt="${location.name}" class="w-full object-cover h-[150px]">
             </div>
             <div class="flex-grow p-3">
                 <div class="flex items-center gap-2">
@@ -252,28 +265,33 @@ a.leaflet-popup-close-button span {font-size: 23px;}
     `;
             };
 
-            // --- 3. Put it all together in the main options object ---
-            const mapOptions = {
-                mapId: 'map',
-                listingId: 'listing',
-                data: mapData,
-                filters: filterConfig,
-                listingTemplate: customListingTemplate,
-                infoboxTemplate: customInfoboxTemplate, // <-- ADD THIS LINE
-                initialCenter: [25, 20],
-                initialZoom: 2
-            };
+// --- The only change is the initialCenter format and the Class Name ---
+const mapOptions = {
+    mapId: 'map',
+    listingId: 'listing',
+    data: mapData,
+    filters: filterConfig,
+    useClustering: true,
+    listingTemplate: customListingTemplate,
+    infoboxTemplate: customInfoboxTemplate,
+    initialCenter: { lat: 25, lng: 20 }, // Google Maps uses a {lat, lng} object
+    initialZoom: 2
+};
 
-            // --- 4. Create the map instance ---
-            const myMap = new MapManager(mapOptions);
+// --- Create an instance of the NEW manager class ---
+const myMap = new GoogleMapManager(mapOptions);
 
-            // --- 5. Add Event Listener for the Reset Button ---
-            const resetButton = document.getElementById('resetFilters');
-            if (resetButton) {
-                resetButton.addEventListener('click', () => myMap.reset());
-            }
-        });
+// Add event listener for the reset button
+const resetButton = document.getElementById('resetFilters');
+if (resetButton) {
+    resetButton.addEventListener('click', () => {
+        myMap.reset();
+    });
+}
+}
     </script>
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDuk0TQLt_tfX5-tXywFPQyItX0kny7kus&callback=initMap"></script>
 
 </body>
 
