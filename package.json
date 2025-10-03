@@ -1,0 +1,10 @@
+{
+  "homepage": "https://pratikchauhan14.github.io/open-street-map-locator",
+  "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d src"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  }
+}
