@@ -83,16 +83,7 @@ class MapManager {
         this._applyFilters();
     }
 
-    // _addMarkers() { /* ... (code is unchanged) ... */
-    //     this.locations.forEach(location => {
-    //         const marker = L.marker([location.latitude, location.longitude]);
-    //         marker.bindPopup(this.options.infoboxTemplate(location));
-    //         marker.on('popupclose', () => {
-    //             if (location.listingElement) location.listingElement.classList.remove('active');
-    //         });
-    //         location.marker = marker;
-    //     });
-    // }
+   
     _addMarkers() {
         this.locations.forEach(location => {
             const marker = L.marker([location.latitude, location.longitude]);
