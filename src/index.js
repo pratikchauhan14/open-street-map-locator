@@ -157,14 +157,11 @@ class MapManager {
     }
 
     _applyFilters() {
-        // --- DEBUG LOG ---
-        if (this.debug) console.log('[MapManager] 3. Applying filters. Current filter state:', this.activeFilters);
-        
+        // --- THIS IS THE NEW LINE ---
+        this.map.closePopup(); // Close any open infobox before applying filters
+
         const visibleLocations = this.locations.filter(location => this._doesLocationMatchFilters(location));
         
-        // --- DEBUG LOG ---
-        if (this.debug) console.log(`[MapManager] 4. Filtering complete. Found ${visibleLocations.length} visible locations.`);
-
         this._populateListing(visibleLocations);
         
         const visibleLocationSet = new Set(visibleLocations);
