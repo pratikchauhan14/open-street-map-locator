@@ -120,7 +120,7 @@ div#reset svg { width: 20px; height: 20px; }
 
 .infobox-inner div#address svg {
     height: auto;
-    width: 23px;
+    width: 23px; 
 }
 
 .infobox-inner div#address svg + div {
