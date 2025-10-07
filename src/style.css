@@ -123,6 +123,8 @@ div#reset svg { width: 20px; height: 20px; }
 .infobox-inner div#address svg + div {
     width: calc(100% - 23px - 10px);
 }
+
+
   
   @media(max-width: 991px){
      #sidebar { width: 280px; }
